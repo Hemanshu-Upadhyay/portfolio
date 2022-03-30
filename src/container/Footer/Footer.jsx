@@ -3,8 +3,8 @@ import { images } from "../../constants";
 import { AppWrap, MotionWrap } from "../../wrapper";
 import { client } from "../../client";
 import "./Footer.scss";
-import Axios from 'axios';
-import FileDownload from 'js-file-download';
+import Axios from "axios";
+import FileDownload from "js-file-download";
 
 const Footer = () => {
   const [formData, setFormData] = useState({
@@ -12,18 +12,27 @@ const Footer = () => {
     email: "",
     message: "",
   });
+  const [download, setdownload] = useState(false);
+  const [error, setError] = useState(false);
 
   const downloadResume = (e) => {
-      e.preventDefault();
-      Axios({
-        url : "https://resumeserver.herokuapp.com/downloadResume",
-        method : "GET",
-        responseType: 'blob'
-      }).then(res => {
+    setdownload(true);
+    e.preventDefault();
+    Axios({
+      url: "https://resumeserver.herokuapp.com/downloadResum",
+      method: "GET",
+      responseType: "blob",
+    })
+      .then((res) => {
         console.log(res.data);
-        FileDownload(res.data, 'Hemanshu_Upadhyay_Resume.pdf');
+        FileDownload(res.data, "Hemanshu_Upadhyay_Resume.pdf");
+        setdownload(false);
       })
-  }
+      .catch((err) => {
+        console.log(err);
+        setError(true);
+      });
+  };
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -35,7 +44,6 @@ const Footer = () => {
   };
 
   const handleSubmit = () => {
-    
     setLoading(true);
 
     const contact = {
@@ -44,14 +52,26 @@ const Footer = () => {
       email: formData.email,
       message: formData.message,
     };
-
-    client
-      .create(contact)
-      .then(() => {
-        setLoading(false);
-        setIsFormSubmitted(true);
-      })
-      .catch((err) => console.log(err));
+    if (formData.username === "") {
+      alert("Please fill the name field");
+      setLoading(false);
+    }
+    if (formData.email === "") {
+      alert("Please fill the email field");
+      setLoading(false);
+    }
+    if (formData.message === "") {
+      alert("Please fill the messege field");
+      setLoading(false);
+    } else {
+      client
+        .create(contact)
+        .then(() => {
+          setLoading(false);
+          setIsFormSubmitted(true);
+        })
+        .catch((err) => console.log(err));
+    }
   };
 
   return (
@@ -74,7 +94,11 @@ const Footer = () => {
         <div className="app__footer-card">
           <img src={images.mobile} alt="phone" />
           <a onClick={downloadResume} className="p-text">
-            Download My Resume
+            {download && !error
+              ? "Downloading..."
+              : "Download Resume" && error
+              ? "Sorry an Error occured Please try again later"
+              : "Download Resume"}
           </a>
         </div>
       </div>
@@ -115,7 +139,9 @@ const Footer = () => {
         </div>
       ) : (
         <div>
-          <h3 className="head-text">Thank you for getting in touch!</h3>
+          <h3 className="head-text">
+            Thank you for getting in touch! I'll connect With You soon ;)
+          </h3>
         </div>
       )}
     </>
