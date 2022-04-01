@@ -19,7 +19,7 @@ const Footer = () => {
     setdownload(true);
     e.preventDefault();
     Axios({
-      url: "https://resumeserver.herokuapp.com/downloadResum",
+      url: "https://resumeserver.herokuapp.com/downloadResume",
       method: "GET",
       responseType: "blob",
     })
